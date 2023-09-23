@@ -67,7 +67,7 @@ def find_command(command):
     if result.returncode != 0:
         print(f"Error {result.returncode}. Command: '{' '.join(cmd)}'. \
 Output: {result.stdout}. Errors: {result.stderr}")
-    return result.stdout
+    return result.stdout.decode().strip()
 
 
 def download_list(url):
