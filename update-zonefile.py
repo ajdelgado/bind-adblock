@@ -34,6 +34,7 @@ import dns.name
 import dns.version
 from dns.exception import DNSException
 import subprocess
+import sys
 import textwrap
 import shutil
 from argparse import ArgumentParser
