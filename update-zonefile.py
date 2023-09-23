@@ -229,13 +229,27 @@ Output: {result.stdout}. Errors: {result.stderr}")
     return result.returncode == 0
 
 
-def reload_zone(origin):
-    cmd = ['/usr/sbin/rndc', 'reload']
-    result = subprocess.run(cmd, capture_output=True)
-    if result.returncode != 0:
-        raise Exception(f"rndc failed with return code {result.returncode}. \
-Output: {result.stdout}. Errors: {result.stderr}")
+def rndc_reload(cmd):
+    try:
+        r = subprocess.check_output(cmd, stderr=subprocess.PIPE)
 
+    except subprocess.CalledProcessError as e:
+        print( '{}'.format( e.stderr.decode(sys.getfilesystemencoding()) ) )
+        if "multiple" in e.stderr.decode('utf-8'):
+            sys.exit('Please pass --views the list of configured BIND views containing origin zone.')
+        if e.returncode != 0:
+            sys.exit('rndc failed with return code {}'.format(e.returncode))
+
+    print( '{}'.format( r.decode(sys.getfilesystemencoding()) ) )
+
+def reload_zone(origin, views):
+    if views:
+        for v in views.split():
+            print ("view {}, {} ".format(v, origin), end='', flush=True)
+            rndc_reload( ['rndc', 'reload', origin, "IN", v] )
+    else:
+        print ("{} ".format(origin), end='', flush=True)
+        rndc_reload( ['rndc', 'reload', origin] )
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -274,12 +288,11 @@ def append_domain_to_zonefile(file, domain):
 
 def parse_arguments():
     parser = ArgumentParser(description='Update zone file from public DNS ad blocking lists')
-    parser.add_argument('--no-bind', dest='no_bind', action='store_true',
-                        help='Don\'t try to check/reload bind zone')
-    parser.add_argument('--raw', dest='raw_zone', action='store_true',
-                        help='Save the zone file in raw format. Requires named-compilezone')
-    parser.add_argument('--empty', dest='empty', action='store_true',
-                        help='Create header-only (empty) rpz zone file')
+    parser.add_argument('--no-bind', dest='no_bind', action='store_true', help='Don\'t try to check/reload bind zone')
+    parser.add_argument('--raw', dest='raw_zone', action='store_true', help='Save the zone file in raw format. Requires named-compilezone')
+    parser.add_argument('--empty', dest='empty', action='store_true', help='Create header-only (empty) rpz zone file')
+    parser.add_argument('--views', dest='views', type=str,
+                        help='If using multiple BIND views, list where each zone is defined')
     parser.add_argument('zonefile', help='path to zone file')
     parser.add_argument('origin', help='zone origin')
     args = parser.parse_args()
@@ -328,8 +341,7 @@ if __name__ == '__main__':
                         cmd = ['/sbin/restorecon', '-F', args.zonefile]
                         r = subprocess.call(cmd)
                         if r != 0:
-                            raise Exception('Cannot run selinux restorecon on the zonefile - \
-return code {}'.format(r))
-            reload_zone(args.origin)
+                            raise Exception('Cannot run selinux restorecon on the zonefile - return code {}'.format(r))
+            reload_zone(args.origin, args.views)
         else:
             print('Zone file invalid, not loading')
