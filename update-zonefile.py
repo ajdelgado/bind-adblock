@@ -61,6 +61,15 @@ regex_no_comment = '^#.*|^$'
 regex_no_comment_in_line = '^([^#]+)'
 
 
+def find_command(command):
+    cmd = ['/usr/bin/which', command]
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        print(f"Error {result.returncode}. Command: '{' '.join(cmd)}'. \
+Output: {result.stdout}. Errors: {result.stderr}")
+    return result.stdout
+
+
 def download_list(url):
     headers = None
 
@@ -221,7 +230,7 @@ def update_serial(zone):
 
 
 def check_zone(origin, zonefile):
-    cmd = ['/usr/sbin/named-checkzone', origin, str(zonefile)]
+    cmd = [find_command('named-checkzone'), origin, str(zonefile)]
     result = subprocess.run(cmd, capture_output=True)
     if result.returncode != 0:
         print(f"Error {result.returncode}. Command: '{' '.join(cmd)}'. \
@@ -246,10 +255,10 @@ def reload_zone(origin, views):
     if views:
         for v in views.split():
             print ("view {}, {} ".format(v, origin), end='', flush=True)
-            rndc_reload( ['rndc', 'reload', origin, "IN", v] )
+            rndc_reload( [find_command('rndc'), 'reload', origin, "IN", v] )
     else:
         print ("{} ".format(origin), end='', flush=True)
-        rndc_reload( ['rndc', 'reload', origin] )
+        rndc_reload( [find_command('rndc'), 'reload', origin] )
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -257,7 +266,7 @@ def is_exe(fpath):
 
 def compile_zone(source, target, origin, fromFormat, toFormat):
     cmd = [
-        '/usr/sbin/named-compilezone',
+        find_command('named-compilezone'),
         '-f',
         fromFormat,
         '-F',
@@ -332,7 +341,7 @@ if __name__ == '__main__':
         if check_zone(args.origin, tmpzonefile):
             save_zone(tmpzonefile, args.zonefile, args.origin, args.raw_zone)
             if is_exe('/usr/sbin/getenforce'):
-                cmd = ['/usr/sbin/getenforce']
+                cmd = [find_command('getenforce')]
                 r = subprocess.check_output(cmd).strip()
                 print('SELinux getenforce output / Current State is: ', r)
                 if r == b'Enforcing':
