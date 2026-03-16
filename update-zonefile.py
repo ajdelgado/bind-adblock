@@ -253,12 +253,14 @@ def rndc_reload(cmd):
     print( '{}'.format( r.decode(sys.getfilesystemencoding()) ) )
 
 def reload_zone(origin, views):
+    """Reload DNS zone"""
+    print("Reloading zone....")
     if views:
         for v in views.split():
-            print ("view {}, {} ".format(v, origin), end='', flush=True)
+            print (f"view {v}, {origin} ", end='', flush=True)
             rndc_reload( [find_command('rndc'), 'reload', origin, "IN", v] )
     else:
-        print ("{} ".format(origin), end='', flush=True)
+        print ("{origin} ", end='', flush=True)
         rndc_reload( [find_command('rndc'), 'reload', origin] )
 
 def is_exe(fpath):
