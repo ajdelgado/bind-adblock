@@ -257,7 +257,7 @@ def reload_zone(origin, views):
     print("Reloading zones....")
     if views:
         for v in views.split(','):
-            print (f"  View {v}, {origin} ", end='', flush=True)
+            print (f"  View '{v}', '{origin=}' ", end='', flush=True)
             rndc_reload( [find_command('rndc'), 'reload', origin, "IN", v] )
     else:
         print ("{origin} ", end='', flush=True)
