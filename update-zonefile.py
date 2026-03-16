@@ -254,10 +254,10 @@ def rndc_reload(cmd):
 
 def reload_zone(origin, views):
     """Reload DNS zone"""
-    print("Reloading zone....")
+    print("Reloading zones....")
     if views:
         for v in views.split(','):
-            print (f"view {v}, {origin} ", end='', flush=True)
+            print (f"  View {v}, {origin} ", end='', flush=True)
             rndc_reload( [find_command('rndc'), 'reload', origin, "IN", v] )
     else:
         print ("{origin} ", end='', flush=True)
