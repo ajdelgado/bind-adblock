@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/ajdelgado/bind-adblock"
+
+[project]
+name = "bind-adblock"
+version = "0.0.1"
+description = "Fetch various blocklists and generate a BIND zone from them."
+readme = "README.md"
+authors = [
+    { name = "Antonio J. Delgado", email = "antonio@susurrando.com" },
+    { name = "Daniel Triendl", email = "daniel@pew.cc" }
+]
+license-files = [ "LICENSE" ]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3"
+dependencies = [
+    "certifi==2024.2.2",
+    "charset-normalizer==3.3.2",
+    "decorator==5.1.1",
+    "dnspython==2.6.1",
+    "idna==3.7",
+    "pathlib==1.0.1",
+    "PyYAML==6.0.1",
+    "requests==2.32.2",
+    "urllib3==2.2.1",
+    "validators==0.28.1"
+]
+[project.scripts]
+update_zonefile = "update_zonefile:__main__"

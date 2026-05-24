@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
+# -*- encoding: utf-8 -*-
 
 '''
+Fetch various blocklists and generate a BIND zone from them.
+Configure BIND to return NXDOMAIN for ad and tracking domains to stop clients from contacting them.
+
 Copyright (c) 2018 Daniel Triendl <daniel@pew.cc>
+Copyright (c) 2024 Antonio J. Delgado
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -311,7 +316,7 @@ def parse_arguments():
     return args
 
 
-if __name__ == '__main__':
+def __main__():
     args = parse_arguments()
 
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -357,3 +362,6 @@ if __name__ == '__main__':
             reload_zone(args.origin, args.views)
         else:
             print('Zone file invalid, not loading')
+
+if __name__ == "__main__":
+    __main__()
